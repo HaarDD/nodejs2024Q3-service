@@ -8,14 +8,17 @@ import { IUserRepository } from '../repository/interfaces/user.repository.interf
 import { User } from '../entity/user.entity';
 import { CreateUserDto } from '../dto/user-create.dto';
 import { UpdatePasswordDto } from '../dto/user-upd-pass.dto';
+import { BaseService } from './common/base.service';
 
 type UserWithoutPassword = Omit<User, 'password'>;
 
 @Injectable()
-export class UserService {
+export class UserService extends BaseService {
   constructor(
     @Inject('UserRepository') private readonly userRepository: IUserRepository,
-  ) {}
+  ) {
+    super();
+  }
 
   async create(createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
     const user = new User();

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
 import { Album } from '../entity/album.entity';
 import { CreateAlbumDto } from '../dto/album-create.dto';
@@ -11,9 +6,10 @@ import { UpdateAlbumDto } from '../dto/album-update.dto';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';
 import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
+import { BaseService } from './common/base.service';
 
 @Injectable()
-export class AlbumService {
+export class AlbumService extends BaseService {
   constructor(
     @Inject('AlbumRepository')
     private readonly albumRepository: IAlbumRepository,
@@ -23,7 +19,9 @@ export class AlbumService {
     private readonly trackRepository: ITrackRepository,
     @Inject('FavoritesRepository')
     private readonly favoritesRepository: IFavoritesRepository,
-  ) {}
+  ) {
+    super();
+  }
 
   async create(createAlbumDto: CreateAlbumDto): Promise<Album> {
     if (createAlbumDto.artistId) {
@@ -31,7 +29,7 @@ export class AlbumService {
         createAlbumDto.artistId,
       );
       if (!artist) {
-        throw new BadRequestException('Artist does not exist');
+        this.notFoundException('Artist');
       }
     }
 
@@ -49,7 +47,7 @@ export class AlbumService {
   async findById(id: string): Promise<Album> {
     const album = await this.albumRepository.findById(id);
     if (!album) {
-      throw new NotFoundException('Album not found');
+      this.notFoundException('Album');
     }
     return album;
   }
@@ -57,7 +55,7 @@ export class AlbumService {
   async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
     const existingAlbum = await this.albumRepository.findById(id);
     if (!existingAlbum) {
-      throw new NotFoundException('Album not found');
+      this.notFoundException('Album');
     }
 
     if (updateAlbumDto.artistId) {
@@ -65,7 +63,7 @@ export class AlbumService {
         updateAlbumDto.artistId,
       );
       if (!artist) {
-        throw new BadRequestException('Artist does not exist');
+        this.notFoundException('Artist');
       }
     }
 
@@ -76,13 +74,13 @@ export class AlbumService {
   async delete(id: string): Promise<void> {
     const album = await this.albumRepository.findById(id);
     if (!album) {
-      throw new NotFoundException('Album not found');
+      this.notFoundException('Album');
     }
 
-    await this.favoritesRepository.removeAlbum(id);
+    await this.albumRepository.delete(id);
 
     await this.trackRepository.nullifyAlbum(id);
 
-    await this.albumRepository.delete(id);
+    await this.favoritesRepository.removeAlbum(id);
   }
 }
