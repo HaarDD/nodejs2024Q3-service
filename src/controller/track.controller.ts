@@ -9,10 +9,10 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { TrackService } from '../service/track.service';
-import { CreateTrackDto } from '../dto/track-create.dto';
-import { UpdateTrackDto } from '../dto/track-update.dto';
+import { CreateTrackDto } from '../dto/request/track-create.dto';
+import { UpdateTrackDto } from '../dto/request/track-update.dto';
 import { Track } from '../entity/track.entity';
-import { IdParamDto } from 'src/dto/id-param.dto';
+import { IdParamDto } from 'src/dto/request/id-param.dto';
 
 @Controller('track')
 export class TrackController {

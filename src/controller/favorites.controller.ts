@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Delete, Param, HttpCode } from '@nestjs/common';
 import { FavoritesService } from '../service/favorites.service';
-import { IdParamDto } from '../dto/id-param.dto';
+import { IdParamDto } from '../dto/request/id-param.dto';
 
 @Controller('favs')
 export class FavoritesController {

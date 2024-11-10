@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
 import { Track } from '../entity/track.entity';
-import { CreateTrackDto } from '../dto/track-create.dto';
-import { UpdateTrackDto } from '../dto/track-update.dto';
+import { CreateTrackDto } from '../dto/request/track-create.dto';
+import { UpdateTrackDto } from '../dto/request/track-update.dto';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
 import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';

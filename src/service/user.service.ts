@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { IUserRepository } from '../repository/interfaces/user.repository.interface';
 import { User } from '../entity/user.entity';
-import { CreateUserDto } from '../dto/user-create.dto';
-import { UpdatePasswordDto } from '../dto/user-upd-pass.dto';
+import { CreateUserDto } from '../dto/request/user-create.dto';
+import { UpdatePasswordDto } from '../dto/request/user-upd-pass.dto';
 import { BaseService } from './common/base.service';
 
 type UserWithoutPassword = Omit<User, 'password'>;

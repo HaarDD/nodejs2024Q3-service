@@ -9,10 +9,10 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ArtistService } from '../service/artist.service';
-import { CreateArtistDto } from '../dto/artist-create.dto';
-import { UpdateArtistDto } from '../dto/artist-update.dto';
+import { CreateArtistDto } from '../dto/request/artist-create.dto';
+import { UpdateArtistDto } from '../dto/request/artist-update.dto';
 import { Artist } from '../entity/artist.entity';
-import { IdParamDto } from 'src/dto/id-param.dto';
+import { IdParamDto } from 'src/dto/request/id-param.dto';
 
 @Controller('artist')
 export class ArtistController {

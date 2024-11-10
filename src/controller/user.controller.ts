@@ -9,10 +9,10 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { CreateUserDto } from '../dto/user-create.dto';
-import { UpdatePasswordDto } from '../dto/user-upd-pass.dto';
+import { CreateUserDto } from '../dto/request/user-create.dto';
+import { UpdatePasswordDto } from '../dto/request/user-upd-pass.dto';
 import { User } from '../entity/user.entity';
-import { IdParamDto } from 'src/dto/id-param.dto';
+import { IdParamDto } from 'src/dto/request/id-param.dto';
 
 type UserWithoutPassword = Omit<User, 'password'>;
 
