@@ -1,14 +1,8 @@
-import {
-  Injectable,
-  Inject,
-  BadRequestException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { Artist } from '../entity/artist.entity';
 import { CreateArtistDto } from '../dto/artist-create.dto';
 import { UpdateArtistDto } from '../dto/artist-update.dto';
-import { isUUID } from 'class-validator';
 import { IFavoritesRepository } from 'src/repository/interfaces/favorites.repository.interface';
 import { ITrackRepository } from 'src/repository/interfaces/track.repository.interface';
 import { IAlbumRepository } from 'src/repository/interfaces/album.repository.interface';
@@ -38,9 +32,6 @@ export class ArtistService {
   }
 
   async findById(id: string): Promise<Artist> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
     const artist = await this.artistRepository.findById(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');
@@ -49,9 +40,6 @@ export class ArtistService {
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
     const existingArtist = await this.artistRepository.findById(id);
     if (!existingArtist) {
       throw new NotFoundException('Artist not found');
@@ -61,10 +49,6 @@ export class ArtistService {
   }
 
   async delete(id: string): Promise<void> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const artist = await this.artistRepository.findById(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');

@@ -1,7 +1,6 @@
 import {
   Injectable,
   Inject,
-  BadRequestException,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -12,7 +11,6 @@ import { IArtistRepository } from '../repository/interfaces/artist.repository.in
 import { Track } from '../entity/track.entity';
 import { Album } from '../entity/album.entity';
 import { Artist } from '../entity/artist.entity';
-import { isUUID } from 'class-validator';
 
 @Injectable()
 export class FavoritesService {
@@ -63,10 +61,6 @@ export class FavoritesService {
   }
 
   async addTrackToFavorites(trackId: string): Promise<void> {
-    if (!isUUID(trackId, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const track = await this.trackRepository.findById(trackId);
     if (!track) {
       throw new UnprocessableEntityException('Track not found');
@@ -76,10 +70,6 @@ export class FavoritesService {
   }
 
   async addAlbumToFavorites(albumId: string): Promise<void> {
-    if (!isUUID(albumId, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const album = await this.albumRepository.findById(albumId);
     if (!album) {
       throw new UnprocessableEntityException('Album not found');
@@ -89,10 +79,6 @@ export class FavoritesService {
   }
 
   async addArtistToFavorites(artistId: string): Promise<void> {
-    if (!isUUID(artistId, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const artist = await this.artistRepository.findById(artistId);
     if (!artist) {
       throw new UnprocessableEntityException('Artist not found');
@@ -102,10 +88,6 @@ export class FavoritesService {
   }
 
   async removeTrackFromFavorites(trackId: string): Promise<void> {
-    if (!isUUID(trackId, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const isFavorite = await this.favoritesRepository.isTrackFavorite(trackId);
     if (!isFavorite) {
       throw new NotFoundException('Track is not in favorites');
@@ -115,10 +97,6 @@ export class FavoritesService {
   }
 
   async removeAlbumFromFavorites(albumId: string): Promise<void> {
-    if (!isUUID(albumId, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const isFavorite = await this.favoritesRepository.isAlbumFavorite(albumId);
     if (!isFavorite) {
       throw new NotFoundException('Album is not in favorites');
@@ -128,10 +106,6 @@ export class FavoritesService {
   }
 
   async removeArtistFromFavorites(artistId: string): Promise<void> {
-    if (!isUUID(artistId, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const isFavorite = await this.favoritesRepository.isArtistFavorite(
       artistId,
     );

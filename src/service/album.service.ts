@@ -8,7 +8,6 @@ import { IAlbumRepository } from '../repository/interfaces/album.repository.inte
 import { Album } from '../entity/album.entity';
 import { CreateAlbumDto } from '../dto/album-create.dto';
 import { UpdateAlbumDto } from '../dto/album-update.dto';
-import { isUUID } from 'class-validator';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';
 import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
@@ -48,9 +47,6 @@ export class AlbumService {
   }
 
   async findById(id: string): Promise<Album> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
     const album = await this.albumRepository.findById(id);
     if (!album) {
       throw new NotFoundException('Album not found');
@@ -59,10 +55,6 @@ export class AlbumService {
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const existingAlbum = await this.albumRepository.findById(id);
     if (!existingAlbum) {
       throw new NotFoundException('Album not found');
@@ -82,10 +74,6 @@ export class AlbumService {
   }
 
   async delete(id: string): Promise<void> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const album = await this.albumRepository.findById(id);
     if (!album) {
       throw new NotFoundException('Album not found');

@@ -1,7 +1,6 @@
 import {
   Injectable,
   Inject,
-  BadRequestException,
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
@@ -9,7 +8,6 @@ import { IUserRepository } from '../repository/interfaces/user.repository.interf
 import { User } from '../entity/user.entity';
 import { CreateUserDto } from '../dto/user-create.dto';
 import { UpdatePasswordDto } from '../dto/user-upd-pass.dto';
-import { isUUID } from 'class-validator';
 
 type UserWithoutPassword = Omit<User, 'password'>;
 
@@ -31,9 +29,6 @@ export class UserService {
   }
 
   async findById(id: string): Promise<UserWithoutPassword> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -45,10 +40,6 @@ export class UserService {
     id: string,
     updatePasswordDto: UpdatePasswordDto,
   ): Promise<UserWithoutPassword> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -70,9 +61,6 @@ export class UserService {
   }
 
   async delete(id: string): Promise<void> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');

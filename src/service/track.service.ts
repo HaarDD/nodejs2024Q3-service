@@ -8,7 +8,6 @@ import { ITrackRepository } from '../repository/interfaces/track.repository.inte
 import { Track } from '../entity/track.entity';
 import { CreateTrackDto } from '../dto/track-create.dto';
 import { UpdateTrackDto } from '../dto/track-update.dto';
-import { isUUID } from 'class-validator';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
 import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';
@@ -56,9 +55,6 @@ export class TrackService {
   }
 
   async findById(id: string): Promise<Track> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
     const track = await this.trackRepository.findById(id);
     if (!track) {
       throw new NotFoundException('Track not found');
@@ -67,10 +63,6 @@ export class TrackService {
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const existingTrack = await this.trackRepository.findById(id);
     if (!existingTrack) {
       throw new NotFoundException('Track not found');
@@ -97,10 +89,6 @@ export class TrackService {
   }
 
   async delete(id: string): Promise<void> {
-    if (!isUUID(id, 4)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
     const track = await this.trackRepository.findById(id);
     if (!track) {
       throw new NotFoundException('Track not found');
