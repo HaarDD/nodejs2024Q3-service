@@ -36,10 +36,8 @@ export class AlbumRepository implements IAlbumRepository {
   }
 
   async delete(id: string): Promise<void> {
-    // Update related tracks
     await this.trackRepository.nullifyAlbum(id);
 
-    // Delete album
     this.albums = this.albums.filter((album) => album.id !== id);
   }
 
