@@ -1,12 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
 import { Track } from '../entity/track.entity';
-import { CreateTrackDto } from '../dto/request/track-create.dto';
-import { UpdateTrackDto } from '../dto/request/track-update.dto';
+import { TrackReqCreateDto } from '../dto/request/track-create.dto';
+import { TrackReqUpdateDto } from '../dto/request/track-update.dto';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
 import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';
 import { BaseService } from './common/base.service';
+import { TrackResponseDto } from 'src/dto/response/track.response.dto';
+import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
 
 @Injectable()
 export class TrackService extends BaseService {
@@ -19,11 +21,18 @@ export class TrackService extends BaseService {
     private readonly albumRepository: IAlbumRepository,
     @Inject('FavoritesRepository')
     private readonly favoritesRepository: IFavoritesRepository,
+    @Inject('TrackMapper')
+    private readonly trackMapper: IMapper<
+      Track,
+      TrackReqCreateDto,
+      TrackReqUpdateDto,
+      TrackResponseDto
+    >,
   ) {
     super();
   }
 
-  async create(createTrackDto: CreateTrackDto): Promise<Track> {
+  async create(createTrackDto: TrackReqCreateDto): Promise<TrackResponseDto> {
     if (createTrackDto.artistId) {
       const artist = await this.artistRepository.findById(
         createTrackDto.artistId,
@@ -40,27 +49,29 @@ export class TrackService extends BaseService {
       }
     }
 
-    const track = new Track();
-    track.name = createTrackDto.name;
-    track.duration = createTrackDto.duration;
-    track.artistId = createTrackDto.artistId || null;
-    track.albumId = createTrackDto.albumId || null;
-    return this.trackRepository.create(track);
+    const createdTrack = this.trackMapper.mapFromCreateDto(createTrackDto);
+    const savedTrack = await this.trackRepository.create(createdTrack);
+
+    return this.trackMapper.mapToDto(savedTrack);
   }
 
-  async findAll(): Promise<Track[]> {
-    return this.trackRepository.findAll();
+  async findAll(): Promise<TrackResponseDto[]> {
+    const tracksAll = await this.trackRepository.findAll();
+    return this.trackMapper.mapToDtos(tracksAll);
   }
 
-  async findById(id: string): Promise<Track> {
+  async findById(id: string): Promise<TrackResponseDto> {
     const track = await this.trackRepository.findById(id);
     if (!track) {
       this.notFoundException('Track');
     }
-    return track;
+    return this.trackMapper.mapToDto(track);
   }
 
-  async update(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
+  async update(
+    id: string,
+    updateTrackDto: TrackReqUpdateDto,
+  ): Promise<TrackResponseDto> {
     const existingTrack = await this.trackRepository.findById(id);
     if (!existingTrack) {
       this.notFoundException('Track');
@@ -82,8 +93,14 @@ export class TrackService extends BaseService {
       }
     }
 
-    const updatedTrack = { ...existingTrack, ...updateTrackDto };
-    return this.trackRepository.update(updatedTrack as Track);
+    const updatedTrack = this.trackMapper.mapFromUpdateDto(
+      updateTrackDto,
+      existingTrack,
+    );
+
+    const savedTrack = await this.trackRepository.update(updatedTrack);
+
+    return this.trackMapper.mapToDto(savedTrack);
   }
 
   async delete(id: string): Promise<void> {

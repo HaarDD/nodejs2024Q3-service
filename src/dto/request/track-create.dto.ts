@@ -6,7 +6,7 @@ import {
   IsUUID,
 } from 'class-validator';
 
-export class CreateTrackDto {
+export class TrackReqCreateDto {
   @IsString()
   @IsNotEmpty()
   name: string;

@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsInt, IsUUID } from 'class-validator';
 
-export class UpdateTrackDto {
+export class TrackReqUpdateDto {
   @IsOptional()
   @IsString()
   name?: string;
