@@ -1,12 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
 import { Album } from '../entity/album.entity';
-import { CreateAlbumDto } from '../dto/request/album-create.dto';
-import { UpdateAlbumDto } from '../dto/request/album-update.dto';
+import { AlbumReqCreateDto } from '../dto/request/album-create.dto';
+import { AlbumReqUpdateDto as AlbumReqUpdateDto } from '../dto/request/album-update.dto';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';
 import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
 import { BaseService } from './common/base.service';
+import { AlbumResponseDto } from 'src/dto/response/album.response.dto';
+import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
 
 @Injectable()
 export class AlbumService extends BaseService {
@@ -19,40 +21,48 @@ export class AlbumService extends BaseService {
     private readonly trackRepository: ITrackRepository,
     @Inject('FavoritesRepository')
     private readonly favoritesRepository: IFavoritesRepository,
+    @Inject('AlbumMapper')
+    private readonly albumMapper: IMapper<
+      Album,
+      AlbumReqCreateDto,
+      AlbumReqUpdateDto,
+      AlbumResponseDto
+    >,
   ) {
     super();
   }
 
-  async create(createAlbumDto: CreateAlbumDto): Promise<Album> {
-    if (createAlbumDto.artistId) {
+  async create(albumCreateDto: AlbumReqCreateDto): Promise<AlbumResponseDto> {
+    if (albumCreateDto.artistId) {
       const artist = await this.artistRepository.findById(
-        createAlbumDto.artistId,
+        albumCreateDto.artistId,
       );
       if (!artist) {
         this.notFoundException('Artist');
       }
     }
-
-    const album = new Album();
-    album.name = createAlbumDto.name;
-    album.year = createAlbumDto.year;
-    album.artistId = createAlbumDto.artistId || null;
-    return this.albumRepository.create(album);
+    const createdAlbum = this.albumMapper.mapFromCreateDto(albumCreateDto);
+    const savedAlbum = await this.albumRepository.create(createdAlbum);
+    return this.albumMapper.mapToDto(savedAlbum);
   }
 
-  async findAll(): Promise<Album[]> {
-    return this.albumRepository.findAll();
+  async findAll(): Promise<AlbumResponseDto[]> {
+    const albums = await this.albumRepository.findAll();
+    return this.albumMapper.mapToDtos(albums);
   }
 
-  async findById(id: string): Promise<Album> {
+  async findById(id: string): Promise<AlbumResponseDto> {
     const album = await this.albumRepository.findById(id);
     if (!album) {
       this.notFoundException('Album');
     }
-    return album;
+    return this.albumMapper.mapToDto(album);
   }
 
-  async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
+  async update(
+    id: string,
+    updateAlbumDto: AlbumReqUpdateDto,
+  ): Promise<AlbumResponseDto> {
     const existingAlbum = await this.albumRepository.findById(id);
     if (!existingAlbum) {
       this.notFoundException('Album');
@@ -67,8 +77,13 @@ export class AlbumService extends BaseService {
       }
     }
 
-    const updatedAlbum = { ...existingAlbum, ...updateAlbumDto };
-    return this.albumRepository.update(updatedAlbum as Album);
+    const updatedAlbum = this.albumMapper.mapFromUpdateDto(
+      updateAlbumDto,
+      existingAlbum,
+    );
+    const savedAlbum = await this.albumRepository.update(updatedAlbum);
+
+    return this.albumMapper.mapToDto(savedAlbum);
   }
 
   async delete(id: string): Promise<void> {

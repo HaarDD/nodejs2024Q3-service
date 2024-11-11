@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsInt, IsUUID } from 'class-validator';
 
-export class UpdateAlbumDto {
+export class AlbumReqUpdateDto {
   @IsOptional()
   @IsString()
   name?: string;

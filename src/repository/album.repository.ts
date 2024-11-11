@@ -1,13 +1,8 @@
 import { IAlbumRepository } from './interfaces/album.repository.interface';
 import { Album } from '../entity/album.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { ITrackRepository } from './interfaces/track.repository.interface';
-import { Inject } from '@nestjs/common';
 
 export class AlbumRepository implements IAlbumRepository {
-  constructor(
-    @Inject('TrackRepository') private trackRepository: ITrackRepository,
-  ) {}
   private albums: Album[] = [];
 
   async create(album: Album): Promise<Album> {
@@ -36,8 +31,6 @@ export class AlbumRepository implements IAlbumRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.trackRepository.nullifyAlbum(id);
-
     this.albums = this.albums.filter((album) => album.id !== id);
   }
 
