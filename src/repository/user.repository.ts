@@ -2,48 +2,34 @@ import { User } from '../entity/user.entity';
 import { IUserRepository } from './interfaces/user.repository.interface';
 import { v4 as uuidv4 } from 'uuid';
 
-type UserWithoutPassword = Omit<User, 'password'>;
-
 export class UserRepository implements IUserRepository {
   private users: User[] = [];
 
-  async create(user: User): Promise<UserWithoutPassword> {
+  async create(user: User): Promise<User> {
     user.id = uuidv4();
     user.version = 1;
     user.createdAt = Date.now();
     user.updatedAt = Date.now();
     this.users.push(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return user;
   }
 
-  async findAll(): Promise<UserWithoutPassword[]> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return this.users.map(({ password, ...rest }) => rest);
+  async findAll(): Promise<User[]> {
+    return this.users;
   }
 
-  async findById(id: string): Promise<UserWithoutPassword | null> {
-    const user = this.users.find((user) => user.id === id);
-    if (user) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    }
-    return null;
+  async findById(id: string): Promise<User | null> {
+    return this.users.find((users) => users.id === id) || null;
   }
 
-  async update(updatedUser: User): Promise<UserWithoutPassword> {
+  async update(updatedUser: User): Promise<User> {
     const index = this.users.findIndex((user) => user.id === updatedUser.id);
-    if (index !== -1) {
-      updatedUser.version = this.users[index].version + 1;
-      updatedUser.updatedAt = Date.now();
-      this.users[index] = { ...updatedUser };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...userWithoutPassword } = this.users[index];
-      return userWithoutPassword;
+    if (index === -1) {
+      throw new Error('User not found');
     }
-    throw new Error('User not found');
+
+    this.users[index] = updatedUser;
+    return updatedUser;
   }
 
   async delete(id: string): Promise<void> {

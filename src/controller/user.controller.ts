@@ -9,46 +9,44 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { CreateUserDto } from '../dto/request/user-create.dto';
-import { UpdatePasswordDto } from '../dto/request/user-upd-pass.dto';
-import { User } from '../entity/user.entity';
-import { IdParamDto } from 'src/dto/request/id-param.dto';
-
-type UserWithoutPassword = Omit<User, 'password'>;
+import { UserReqCreateDto } from '../dto/request/user-create.dto';
+import { UserReqUpdateDto } from '../dto/request/user-upd-pass.dto';
+import { IdParamReqDto } from 'src/dto/request/id-param.dto';
+import { UserResponseDto } from 'src/dto/response/user.response.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async findAll(): Promise<UserWithoutPassword[]> {
+  async findAll(): Promise<UserResponseDto[]> {
     return this.userService.findAll();
   }
 
   @Get(':id')
-  async findById(@Param() params: IdParamDto): Promise<UserWithoutPassword> {
+  async findById(@Param() params: IdParamReqDto): Promise<UserResponseDto> {
     return this.userService.findById(params.id);
   }
 
   @Post()
   @HttpCode(201)
   async create(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<UserWithoutPassword> {
+    @Body() createUserDto: UserReqCreateDto,
+  ): Promise<UserResponseDto> {
     return this.userService.create(createUserDto);
   }
 
   @Put(':id')
   async updatePassword(
-    @Param() params: IdParamDto,
-    @Body() updatePasswordDto: UpdatePasswordDto,
-  ): Promise<UserWithoutPassword> {
+    @Param() params: IdParamReqDto,
+    @Body() updatePasswordDto: UserReqUpdateDto,
+  ): Promise<UserResponseDto> {
     return this.userService.updatePassword(params.id, updatePasswordDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param() params: IdParamDto): Promise<void> {
+  async delete(@Param() params: IdParamReqDto): Promise<void> {
     return this.userService.delete(params.id);
   }
 }

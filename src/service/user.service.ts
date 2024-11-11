@@ -6,45 +6,57 @@ import {
 } from '@nestjs/common';
 import { IUserRepository } from '../repository/interfaces/user.repository.interface';
 import { User } from '../entity/user.entity';
-import { CreateUserDto } from '../dto/request/user-create.dto';
-import { UpdatePasswordDto } from '../dto/request/user-upd-pass.dto';
+import { UserReqCreateDto } from '../dto/request/user-create.dto';
+import { UserReqUpdateDto } from '../dto/request/user-upd-pass.dto';
 import { BaseService } from './common/base.service';
-
-type UserWithoutPassword = Omit<User, 'password'>;
+import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
+import { UserResponseDto } from 'src/dto/response/user.response.dto';
 
 @Injectable()
 export class UserService extends BaseService {
   constructor(
     @Inject('UserRepository') private readonly userRepository: IUserRepository,
+    @Inject('UserMapper')
+    private readonly userMapper: IMapper<
+      User,
+      UserReqCreateDto,
+      UserReqUpdateDto,
+      UserResponseDto
+    >,
   ) {
     super();
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
-    const user = new User();
-    user.login = createUserDto.login;
-    user.password = createUserDto.password;
-    return this.userRepository.create(user);
+  async create(createUserDto: UserReqCreateDto): Promise<UserResponseDto> {
+    const createdUser = this.userMapper.mapFromCreateDto(createUserDto);
+
+    createdUser.version = 1;
+    createdUser.createdAt = Date.now();
+    createdUser.updatedAt = Date.now();
+
+    const savedUser = await this.userRepository.create(createdUser);
+    return this.userMapper.mapToDto(savedUser);
   }
 
-  async findAll(): Promise<UserWithoutPassword[]> {
-    return this.userRepository.findAll();
+  async findAll(): Promise<UserResponseDto[]> {
+    const users = await this.userRepository.findAll();
+    return this.userMapper.mapToDtos(users);
   }
 
-  async findById(id: string): Promise<UserWithoutPassword> {
+  async findById(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+    return this.userMapper.mapToDto(user);
   }
 
   async updatePassword(
     id: string,
-    updatePasswordDto: UpdatePasswordDto,
-  ): Promise<UserWithoutPassword> {
-    const user = await this.userRepository.findById(id);
-    if (!user) {
+    updatePasswordDto: UserReqUpdateDto,
+  ): Promise<UserResponseDto> {
+    const existingUser = await this.userRepository.findById(id);
+    if (!existingUser) {
       throw new NotFoundException('User not found');
     }
 
@@ -56,11 +68,16 @@ export class UserService extends BaseService {
       throw new ForbiddenException('Old password is incorrect');
     }
 
-    const updatedUser = {
-      ...user,
-      password: updatePasswordDto.newPassword,
-    } as User;
-    return this.userRepository.update(updatedUser);
+    const mappedUser = this.userMapper.mapFromUpdateDto(
+      updatePasswordDto,
+      existingUser,
+    );
+
+    mappedUser.version += 1;
+    mappedUser.updatedAt = Date.now();
+
+    const updatedUser = await this.userRepository.update(mappedUser);
+    return this.userMapper.mapToDto(updatedUser);
   }
 
   async delete(id: string): Promise<void> {
