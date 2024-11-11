@@ -28,6 +28,18 @@ A RESTful API service for managing a personal music library built with NestJS.
   - Swagger UI available at doc endpoint
   - API specification in OpenAPI format
 
+## The project follows layered architecture. Key Directories:
+
+- **controller/**: API endpoints and route handlers
+- **dto/**: Data Transfer Objects for request/response validation
+- **entity/**: Domain models and business objects
+- **mappers/**: Conversion between entities and DTOs
+- **modules/**: NestJS module definitions and configurations
+- **repository/**: Data access layer with interfaces
+- **service/**: Business logic implementation
+- **utils/**: Helper functions and utilities
+
+
 ## Requirements
 
 - Node.js: Version 22.0.0 or higher.
