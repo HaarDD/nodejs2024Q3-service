@@ -3,10 +3,10 @@ import { IFavoritesRepository } from '../repository/interfaces/favorites.reposit
 import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
-import { Track } from '../entity/track.entity';
-import { Album } from '../entity/album.entity';
-import { Artist } from '../entity/artist.entity';
 import { BaseService } from './common/base.service';
+import { FavoritesResponseDto } from 'src/dto/response/favorites.response.dto';
+import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
+import { Favorites } from 'src/entity/favorites.entity';
 
 @Injectable()
 export class FavoritesService extends BaseService {
@@ -19,38 +19,20 @@ export class FavoritesService extends BaseService {
     private readonly albumRepository: IAlbumRepository,
     @Inject('ArtistRepository')
     private readonly artistRepository: IArtistRepository,
+    @Inject('FavoritesMapper')
+    private readonly favoritesMapper: IMapper<
+      Favorites,
+      never,
+      never,
+      FavoritesResponseDto
+    >,
   ) {
     super();
   }
 
-  async getFavorites(): Promise<{
-    artists: Artist[];
-    albums: Album[];
-    tracks: Track[];
-  }> {
+  async getFavorites(): Promise<FavoritesResponseDto> {
     const favorites = await this.favoritesRepository.getFavorites();
-
-    const trackPromises = favorites.tracks.map((id) =>
-      this.trackRepository.findById(id),
-    );
-    const albumPromises = favorites.albums.map((id) =>
-      this.albumRepository.findById(id),
-    );
-    const artistPromises = favorites.artists.map((id) =>
-      this.artistRepository.findById(id),
-    );
-
-    const tracks = (await Promise.all(trackPromises)).filter(
-      (track): track is Track => track !== null,
-    );
-    const albums = (await Promise.all(albumPromises)).filter(
-      (album): album is Album => album !== null,
-    );
-    const artists = (await Promise.all(artistPromises)).filter(
-      (artist): artist is Artist => artist !== null,
-    );
-
-    return { tracks, albums, artists };
+    return this.favoritesMapper.mapToDto(favorites);
   }
 
   async addTrackToFavorites(trackId: string): Promise<void> {
