@@ -9,10 +9,10 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ArtistService } from '../service/artist.service';
-import { CreateArtistDto } from '../dto/request/artist-create.dto';
-import { UpdateArtistDto } from '../dto/request/artist-update.dto';
+import { ArtistReqCreateDto } from '../dto/request/artist-create.dto';
+import { ArtistReqUpdateDto } from '../dto/request/artist-update.dto';
 import { Artist } from '../entity/artist.entity';
-import { IdParamDto } from 'src/dto/request/id-param.dto';
+import { IdParamReqDto } from 'src/dto/request/id-param.dto';
 
 @Controller('artist')
 export class ArtistController {
@@ -24,27 +24,27 @@ export class ArtistController {
   }
 
   @Get(':id')
-  async findById(@Param() params: IdParamDto): Promise<Artist> {
+  async findById(@Param() params: IdParamReqDto): Promise<Artist> {
     return this.artistService.findById(params.id);
   }
 
   @Post()
   @HttpCode(201)
-  async create(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
+  async create(@Body() createArtistDto: ArtistReqCreateDto): Promise<Artist> {
     return this.artistService.create(createArtistDto);
   }
 
   @Put(':id')
   async update(
-    @Param() params: IdParamDto,
-    @Body() updateArtistDto: UpdateArtistDto,
+    @Param() params: IdParamReqDto,
+    @Body() updateArtistDto: ArtistReqUpdateDto,
   ): Promise<Artist> {
     return this.artistService.update(params.id, updateArtistDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param() params: IdParamDto): Promise<void> {
+  async delete(@Param() params: IdParamReqDto): Promise<void> {
     return this.artistService.delete(params.id);
   }
 }

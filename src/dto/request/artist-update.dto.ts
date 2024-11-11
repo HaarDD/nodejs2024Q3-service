@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsBoolean } from 'class-validator';
 
-export class UpdateArtistDto {
+export class ArtistReqUpdateDto {
   @IsOptional()
   @IsString()
   name?: string;
