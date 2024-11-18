@@ -30,8 +30,11 @@ in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 Build and start containers:
 
 ```
+npm install
+
 docker-compose up --build
 ```
+(npm install locally needs only for testing)
 
 The application will be available at http://localhost:4000
 
