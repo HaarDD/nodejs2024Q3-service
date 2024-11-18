@@ -1,48 +1,32 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma';
+import { Track } from '@prisma/client';
 import { ITrackRepository } from './interfaces/track.repository.interface';
-import { Track } from '../entity/track.entity';
-import { v4 as uuidv4 } from 'uuid';
 
+@Injectable()
 export class TrackRepository implements ITrackRepository {
-  private tracks: Track[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  async create(track: Track): Promise<Track> {
-    track.id = uuidv4();
-    this.tracks.push(track);
-    return track;
+  async create(track: Omit<Track, 'id'>): Promise<Track> {
+    return this.prisma.track.create({ data: track });
   }
 
   async findAll(): Promise<Track[]> {
-    return this.tracks;
+    return this.prisma.track.findMany();
   }
 
   async findById(id: string): Promise<Track | null> {
-    return this.tracks.find((track) => track.id === id) || null;
+    return this.prisma.track.findUnique({ where: { id } });
   }
 
-  async update(updatedTrack: Track): Promise<Track> {
-    const index = this.tracks.findIndex(
-      (track) => track.id === updatedTrack.id,
-    );
-    if (index !== -1) {
-      this.tracks[index] = { ...this.tracks[index], ...updatedTrack };
-      return this.tracks[index];
-    }
-    throw new Error('Track not found');
+  async update(track: Track): Promise<Track> {
+    return this.prisma.track.update({
+      where: { id: track.id },
+      data: track,
+    });
   }
 
   async delete(id: string): Promise<void> {
-    this.tracks = this.tracks.filter((track) => track.id !== id);
-  }
-
-  async nullifyArtist(artistId: string): Promise<void> {
-    this.tracks = this.tracks.map((track) =>
-      track.artistId === artistId ? { ...track, artistId: null } : track,
-    );
-  }
-
-  async nullifyAlbum(albumId: string): Promise<void> {
-    this.tracks = this.tracks.map((track) =>
-      track.albumId === albumId ? { ...track, albumId: null } : track,
-    );
+    await this.prisma.track.delete({ where: { id } });
   }
 }

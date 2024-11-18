@@ -1,42 +1,32 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma';
+import { Album } from '@prisma/client';
 import { IAlbumRepository } from './interfaces/album.repository.interface';
-import { Album } from '../entity/album.entity';
-import { v4 as uuidv4 } from 'uuid';
 
+@Injectable()
 export class AlbumRepository implements IAlbumRepository {
-  private albums: Album[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  async create(album: Album): Promise<Album> {
-    album.id = uuidv4();
-    this.albums.push(album);
-    return album;
+  async create(album: Omit<Album, 'id'>): Promise<Album> {
+    return this.prisma.album.create({ data: album });
   }
 
   async findAll(): Promise<Album[]> {
-    return this.albums;
+    return this.prisma.album.findMany();
   }
 
   async findById(id: string): Promise<Album | null> {
-    return this.albums.find((album) => album.id === id) || null;
+    return this.prisma.album.findUnique({ where: { id } });
   }
 
-  async update(updatedAlbum: Album): Promise<Album> {
-    const index = this.albums.findIndex(
-      (album) => album.id === updatedAlbum.id,
-    );
-    if (index !== -1) {
-      this.albums[index] = { ...this.albums[index], ...updatedAlbum };
-      return this.albums[index];
-    }
-    throw new Error('Album not found');
+  async update(album: Album): Promise<Album> {
+    return this.prisma.album.update({
+      where: { id: album.id },
+      data: album,
+    });
   }
 
   async delete(id: string): Promise<void> {
-    this.albums = this.albums.filter((album) => album.id !== id);
-  }
-
-  async nullifyArtist(artistId: string): Promise<void> {
-    this.albums = this.albums.map((track) =>
-      track.artistId === artistId ? { ...track, artistId: null } : track,
-    );
+    await this.prisma.album.delete({ where: { id } });
   }
 }
