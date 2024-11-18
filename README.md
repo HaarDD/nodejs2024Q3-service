@@ -1,4 +1,4 @@
-# Please, go to [develop branch](https://github.com/HaarDD/nodejs2024Q3-service/tree/develop)
+# Please, go to [develop branch](https://github.com/HaarDD/nodejs2024Q3-service/tree/develop-part2)
 
 # Home Library Service
 
