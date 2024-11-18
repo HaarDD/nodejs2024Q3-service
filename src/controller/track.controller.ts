@@ -11,26 +11,28 @@ import {
 import { TrackService } from '../service/track.service';
 import { TrackReqCreateDto } from '../dto/request/track-create.dto';
 import { TrackReqUpdateDto } from '../dto/request/track-update.dto';
-import { Track } from '../entity/track.entity';
 import { IdParamReqDto } from 'src/dto/request/id-param.dto';
+import { TrackResponseDto } from 'src/dto/response/track.response.dto';
 
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
   @Get()
-  async findAll(): Promise<Track[]> {
+  async findAll(): Promise<TrackResponseDto[]> {
     return this.trackService.findAll();
   }
 
   @Get(':id')
-  async findById(@Param() params: IdParamReqDto): Promise<Track> {
+  async findById(@Param() params: IdParamReqDto): Promise<TrackResponseDto> {
     return this.trackService.findById(params.id);
   }
 
   @Post()
   @HttpCode(201)
-  async create(@Body() createTrackDto: TrackReqCreateDto): Promise<Track> {
+  async create(
+    @Body() createTrackDto: TrackReqCreateDto,
+  ): Promise<TrackResponseDto> {
     return this.trackService.create(createTrackDto);
   }
 
@@ -38,7 +40,7 @@ export class TrackController {
   async update(
     @Param() params: IdParamReqDto,
     @Body() updateTrackDto: TrackReqUpdateDto,
-  ): Promise<Track> {
+  ): Promise<TrackResponseDto> {
     return this.trackService.update(params.id, updateTrackDto);
   }
 
