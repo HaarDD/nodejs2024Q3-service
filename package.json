@@ -20,7 +20,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "scan": "npm audit && docker scout quickview nodejs2024q3-service-db && docker scout quickview nodejs2024q3-service-app"
+    "scan": "npm audit && docker scout quickview haardd/nodejs2024q3-service-db && docker scout quickview haardd/nodejs2024q3-service-app"
   },
   "overrides": {
     "cross-spawn": "7.0.5"
