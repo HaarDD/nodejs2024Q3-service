@@ -6,18 +6,20 @@ import { TrackModule } from './modules/track.module';
 import { RepositoryModule } from './modules/repository.module';
 import { FavoritesModule } from './modules/favorites.module';
 import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './modules/prisma.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    PrismaModule,
+    RepositoryModule,
     UserModule,
     ArtistModule,
     AlbumModule,
     TrackModule,
     FavoritesModule,
-    RepositoryModule,
   ],
 })
 export class AppModule {}
