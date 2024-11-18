@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { Artist } from '../entity/artist.entity';
+import { Artist } from '@prisma/client';
 import { ArtistResponseDto } from '../dto/response/artist.response.dto';
 import { IMapper } from './common/mapper-to-dto.interface';
-import { ArtistReqCreateDto } from 'src/dto/request/artist-create.dto';
-import { ArtistReqUpdateDto } from 'src/dto/request/artist-update.dto';
+import { ArtistReqCreateDto } from '../dto/request/artist-create.dto';
+import { ArtistReqUpdateDto } from '../dto/request/artist-update.dto';
 
 @Injectable()
 export class ArtistMapper
   implements
     IMapper<Artist, ArtistReqCreateDto, ArtistReqUpdateDto, ArtistResponseDto>
 {
-  mapFromCreateDto(createDto: ArtistReqCreateDto): Artist {
-    const artist = new Artist();
-    artist.name = createDto.name;
-    artist.grammy = createDto.grammy;
-    return artist;
+  mapFromCreateDto(createDto: ArtistReqCreateDto): Omit<Artist, 'id'> {
+    return {
+      name: createDto.name,
+      grammy: createDto.grammy,
+    };
   }
 
   mapFromUpdateDto(

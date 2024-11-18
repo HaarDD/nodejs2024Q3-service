@@ -1,19 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../entity/user.entity';
+import { User } from '@prisma/client';
 import { UserResponseDto } from '../dto/response/user.response.dto';
 import { IMapper } from './common/mapper-to-dto.interface';
-import { UserReqCreateDto } from 'src/dto/request/user-create.dto';
-import { UserReqUpdateDto } from 'src/dto/request/user-upd-pass.dto';
+import { UserReqCreateDto } from '../dto/request/user-create.dto';
+import { UserReqUpdateDto } from '../dto/request/user-upd-pass.dto';
 
 @Injectable()
 export class UserMapper
   implements IMapper<User, UserReqCreateDto, UserReqUpdateDto, UserResponseDto>
 {
-  mapFromCreateDto(createDto: UserReqCreateDto): User {
-    const user = new User();
-    user.login = createDto.login;
-    user.password = createDto.password;
-    return user;
+  mapFromCreateDto(createDto: UserReqCreateDto): Omit<User, 'id'> {
+    return {
+      login: createDto.login,
+      password: createDto.password,
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
   }
 
   mapFromUpdateDto(updateDto: UserReqUpdateDto, existingUser: User): User {
@@ -28,8 +31,8 @@ export class UserMapper
       id: user.id,
       login: user.login,
       version: user.version,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
     };
   }
 

@@ -1,22 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { Album } from '../entity/album.entity';
+import { Album } from '@prisma/client';
 import { AlbumResponseDto } from '../dto/response/album.response.dto';
 import { IMapper } from './common/mapper-to-dto.interface';
-import { AlbumReqCreateDto } from 'src/dto/request/album-create.dto';
-import { AlbumReqUpdateDto } from 'src/dto/request/album-update.dto';
+import { AlbumReqCreateDto } from '../dto/request/album-create.dto';
+import { AlbumReqUpdateDto } from '../dto/request/album-update.dto';
 
 @Injectable()
 export class AlbumMapper
   implements
     IMapper<Album, AlbumReqCreateDto, AlbumReqUpdateDto, AlbumResponseDto>
 {
-  mapFromCreateDto(createDto: AlbumReqCreateDto): Album {
-    const album = new Album();
-    album.name = createDto.name;
-    album.year = createDto.year;
-    album.artistId = createDto.artistId || null;
-    return album;
+  mapFromCreateDto(createDto: AlbumReqCreateDto): Omit<Album, 'id'> {
+    return {
+      name: createDto.name,
+      year: createDto.year,
+      artistId: createDto.artistId || null,
+    };
   }
+
   mapFromUpdateDto(updateDto: AlbumReqUpdateDto, existingAlbum: Album): Album {
     return {
       ...existingAlbum,
@@ -25,6 +26,7 @@ export class AlbumMapper
       artistId: updateDto.artistId ?? existingAlbum.artistId,
     };
   }
+
   mapToDto(album: Album): AlbumResponseDto {
     return {
       id: album.id,
