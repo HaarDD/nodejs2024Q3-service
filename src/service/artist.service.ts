@@ -1,26 +1,17 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { Artist } from '@prisma/client';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
-import { Artist } from '../entity/artist.entity';
 import { ArtistReqCreateDto } from '../dto/request/artist-create.dto';
 import { ArtistReqUpdateDto } from '../dto/request/artist-update.dto';
-import { IFavoritesRepository } from 'src/repository/interfaces/favorites.repository.interface';
-import { ITrackRepository } from 'src/repository/interfaces/track.repository.interface';
-import { IAlbumRepository } from 'src/repository/interfaces/album.repository.interface';
+import { ArtistResponseDto } from '../dto/response/artist.response.dto';
+import { IMapper } from '../mappers/common/mapper-to-dto.interface';
 import { BaseService } from './common/base.service';
-import { ArtistResponseDto } from 'src/dto/response/artist.response.dto';
-import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
 
 @Injectable()
 export class ArtistService extends BaseService {
   constructor(
     @Inject('ArtistRepository')
     private readonly artistRepository: IArtistRepository,
-    @Inject('AlbumRepository')
-    private readonly albumRepository: IAlbumRepository,
-    @Inject('TrackRepository')
-    private readonly trackRepository: ITrackRepository,
-    @Inject('FavoritesRepository')
-    private readonly favoritesRepository: IFavoritesRepository,
     @Inject('ArtistMapper')
     private readonly artistMapper: IMapper<
       Artist,
@@ -35,16 +26,15 @@ export class ArtistService extends BaseService {
   async create(
     createArtistDto: ArtistReqCreateDto,
   ): Promise<ArtistResponseDto> {
-    const createdArtist = this.artistMapper.mapFromCreateDto(createArtistDto);
-    const savedArtist = await this.artistRepository.create(createdArtist);
-
+    const savedArtist = await this.artistRepository.create(
+      this.artistMapper.mapFromCreateDto(createArtistDto),
+    );
     return this.artistMapper.mapToDto(savedArtist);
   }
 
   async findAll(): Promise<ArtistResponseDto[]> {
-    const allArtists = await this.artistRepository.findAll();
-
-    return this.artistMapper.mapToDtos(allArtists);
+    const artists = await this.artistRepository.findAll();
+    return this.artistMapper.mapToDtos(artists);
   }
 
   async findById(id: string): Promise<ArtistResponseDto> {
@@ -64,14 +54,10 @@ export class ArtistService extends BaseService {
       this.notFoundException('Artist');
     }
 
-    const updatedArtist = this.artistMapper.mapFromUpdateDto(
-      updateArtistDto,
-      existingArtist,
+    const updatedArtist = await this.artistRepository.update(
+      this.artistMapper.mapFromUpdateDto(updateArtistDto, existingArtist),
     );
-
-    const savedArtist = await this.artistRepository.update(updatedArtist);
-
-    return this.artistMapper.mapToDto(savedArtist);
+    return this.artistMapper.mapToDto(updatedArtist);
   }
 
   async delete(id: string): Promise<void> {
@@ -79,13 +65,6 @@ export class ArtistService extends BaseService {
     if (!artist) {
       this.notFoundException('Artist');
     }
-
     await this.artistRepository.delete(id);
-
-    await this.trackRepository.nullifyArtist(id);
-
-    await this.albumRepository.nullifyArtist(id);
-
-    await this.favoritesRepository.removeArtist(id);
   }
 }

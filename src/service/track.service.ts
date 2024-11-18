@@ -1,14 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { Track } from '@prisma/client';
 import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
-import { Track } from '../entity/track.entity';
 import { TrackReqCreateDto } from '../dto/request/track-create.dto';
 import { TrackReqUpdateDto } from '../dto/request/track-update.dto';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
 import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';
 import { BaseService } from './common/base.service';
-import { TrackResponseDto } from 'src/dto/response/track.response.dto';
-import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
+import { TrackResponseDto } from '../dto/response/track.response.dto';
+import { IMapper } from '../mappers/common/mapper-to-dto.interface';
 
 @Injectable()
 export class TrackService extends BaseService {
@@ -49,9 +49,9 @@ export class TrackService extends BaseService {
       }
     }
 
-    const createdTrack = this.trackMapper.mapFromCreateDto(createTrackDto);
-    const savedTrack = await this.trackRepository.create(createdTrack);
-
+    const savedTrack = await this.trackRepository.create(
+      this.trackMapper.mapFromCreateDto(createTrackDto),
+    );
     return this.trackMapper.mapToDto(savedTrack);
   }
 
@@ -108,8 +108,6 @@ export class TrackService extends BaseService {
     if (!track) {
       this.notFoundException('Track');
     }
-
-    await this.favoritesRepository.removeTrack(id);
 
     await this.trackRepository.delete(id);
   }
