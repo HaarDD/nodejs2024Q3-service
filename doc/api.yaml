@@ -7,6 +7,18 @@ info:
 servers:
   - url: /api
 
+tags:
+  - name: "1. Users"
+    description: Operations about users
+  - name: "2. Tracks"
+    description: Operations about tracks
+  - name: "3. Artists"
+    description: Operations about artists
+  - name: "4. Albums"
+    description: Operations about albums
+  - name: "5. Favorites"
+    description: Operations about favorites
+
 components:
   schemas:
     User:
@@ -192,7 +204,7 @@ paths:
   /user:
     get:
       tags:
-        - Users
+        - "1. Users"
       summary: Get all users
       description: Gets all users
       responses:
@@ -208,7 +220,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
-        - Users
+        - "1. Users"
       summary: Create user
       description: Creates a new user
       requestBody:
@@ -248,7 +260,7 @@ paths:
           type: string
     get:
       tags:
-        - Users
+        - "1. Users"
       summary: Get single user by id
       description: Get single user by id
       responses:
@@ -267,7 +279,7 @@ paths:
 
     put:
       tags:
-        - Users
+        - "1. Users"
       summary: Update a user's password
       description: Updates a user's password by ID
       requestBody:
@@ -322,7 +334,7 @@ paths:
 
     delete:
       tags:
-        - Users
+        - "1. Users"
       summary: Delete user
       description: Deletes user by ID.
       responses:
@@ -337,7 +349,7 @@ paths:
   /track:
     get:
       tags:
-        - Track
+        - "2. Tracks"
       summary: Get tracks list
       description: Gets all library tracks list
       responses:
@@ -353,7 +365,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
-        - Track
+        - "2. Tracks"
       summary: Add new track
       description: Add new track information
       requestBody:
@@ -398,7 +410,7 @@ paths:
           format: uuid
     get:
       tags:
-        - Track
+        - "2. Tracks"
       summary: Get single track by id
       description: Gets single track by id
       responses:
@@ -416,7 +428,7 @@ paths:
           description: Track was not found.
     put:
       tags:
-        - Track
+        - "2. Tracks"
       summary: Update track information
       description: Update library track information by UUID
       requestBody:
@@ -480,7 +492,7 @@ paths:
           description: Track was not found.
     delete:
       tags:
-        - Track
+        - "2. Tracks"
       summary: Delete track
       description: Delete track from library
       responses:
@@ -495,7 +507,7 @@ paths:
   /album:
     get:
       tags:
-        - Album
+        - "4. Albums"
       summary: Get albums list
       description: Gets all library albums list
       responses:
@@ -511,7 +523,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
-        - Album
+        - "4. Albums"
       summary: Add new album
       description: Add new album information
       requestBody:
@@ -554,7 +566,7 @@ paths:
           format: uuid
     get:
       tags:
-        - Album
+        - "4. Albums"
       summary: Get single album by id
       description: Gets single album by id
       responses:
@@ -572,7 +584,7 @@ paths:
           description: Album was not found.
     put:
       tags:
-        - Album
+        - "4. Albums"
       summary: Update album information
       description: Update library album information by UUID
       requestBody:
@@ -609,7 +621,7 @@ paths:
           description: Album was not found.
     delete:
       tags:
-        - Album
+        - "4. Albums"
       summary: Delete album
       description: Delete album from library
       responses:
@@ -624,7 +636,7 @@ paths:
   /artist:
     get:
       tags:
-        - Artist
+        - "3. Artists"
       summary: Get all artists
       description: Gets all artists
       responses:
@@ -640,7 +652,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
-        - Artist
+        - "3. Artists"
       summary: Add new artist
       description: Add new artist
       requestBody:
@@ -678,7 +690,7 @@ paths:
           format: uuid
     get:
       tags:
-        - Artist
+        - "3. Artists"
       summary: Get single artist by id
       description: Get single artist by id
       responses:
@@ -696,7 +708,7 @@ paths:
           description: Artist was not found.
     put:
       tags:
-        - Artist
+        - "3. Artists"
       summary: Update artist information
       description: Update artist information by UUID
       requestBody:
@@ -728,7 +740,7 @@ paths:
           description: Artist was not found.
     delete:
       tags:
-        - Artist
+        - "3. Artists"
       summary: Delete artist
       description: Delete artist from library
       responses:
@@ -743,7 +755,7 @@ paths:
   /favs:
     get:
       tags:
-        - Favorites
+        - "5. Favorites"
       summary: Get all favorites
       description: Gets all favorites movies, tracks and books
       responses:
@@ -765,7 +777,7 @@ paths:
           format: uuid
     post:
       tags:
-        - Favorites
+        - "5. Favorites"
       summary: Add track to the favorites
       description: Add track to the favorites
       responses:
@@ -779,7 +791,7 @@ paths:
           description: Track with id doesn't exist.
     delete:
       tags:
-        - Favorites
+        - "5. Favorites"
       summary: Delete track from favorites
       description: Delete track from favorites
       responses:
@@ -801,7 +813,7 @@ paths:
           format: uuid
     post:
       tags:
-        - Favorites
+        - "5. Favorites"
       summary: Add album to the favorites
       description: Add album to the favorites
       responses:
@@ -815,7 +827,7 @@ paths:
           description: Album with id doesn't exist.
     delete:
       tags:
-        - Favorites
+        - "5. Favorites"
       summary: Delete album from favorites
       description: Delete album from favorites
       responses:
@@ -837,7 +849,7 @@ paths:
           format: uuid
     post:
       tags:
-        - Favorites
+        - "5. Favorites"
       summary: Add artist to the favorites
       description: Add artist to the favorites
       responses:
@@ -851,7 +863,7 @@ paths:
           description: Artist with id doesn't exist.
     delete:
       tags:
-        - Favorites
+        - "5. Favorites"
       summary: Delete artist from favorites
       description: Delete artist from favorites
       responses:
