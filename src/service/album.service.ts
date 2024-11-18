@@ -1,14 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { Album } from '@prisma/client';
 import { IAlbumRepository } from '../repository/interfaces/album.repository.interface';
-import { Album } from '../entity/album.entity';
-import { AlbumReqCreateDto } from '../dto/request/album-create.dto';
-import { AlbumReqUpdateDto as AlbumReqUpdateDto } from '../dto/request/album-update.dto';
 import { IArtistRepository } from '../repository/interfaces/artist.repository.interface';
-import { IFavoritesRepository } from '../repository/interfaces/favorites.repository.interface';
-import { ITrackRepository } from '../repository/interfaces/track.repository.interface';
+import { AlbumReqCreateDto } from '../dto/request/album-create.dto';
+import { AlbumReqUpdateDto } from '../dto/request/album-update.dto';
+import { AlbumResponseDto } from '../dto/response/album.response.dto';
+import { IMapper } from '../mappers/common/mapper-to-dto.interface';
 import { BaseService } from './common/base.service';
-import { AlbumResponseDto } from 'src/dto/response/album.response.dto';
-import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
 
 @Injectable()
 export class AlbumService extends BaseService {
@@ -17,10 +15,6 @@ export class AlbumService extends BaseService {
     private readonly albumRepository: IAlbumRepository,
     @Inject('ArtistRepository')
     private readonly artistRepository: IArtistRepository,
-    @Inject('TrackRepository')
-    private readonly trackRepository: ITrackRepository,
-    @Inject('FavoritesRepository')
-    private readonly favoritesRepository: IFavoritesRepository,
     @Inject('AlbumMapper')
     private readonly albumMapper: IMapper<
       Album,
@@ -32,17 +26,19 @@ export class AlbumService extends BaseService {
     super();
   }
 
-  async create(albumCreateDto: AlbumReqCreateDto): Promise<AlbumResponseDto> {
-    if (albumCreateDto.artistId) {
+  async create(createAlbumDto: AlbumReqCreateDto): Promise<AlbumResponseDto> {
+    if (createAlbumDto.artistId) {
       const artist = await this.artistRepository.findById(
-        albumCreateDto.artistId,
+        createAlbumDto.artistId,
       );
       if (!artist) {
         this.notFoundException('Artist');
       }
     }
-    const createdAlbum = this.albumMapper.mapFromCreateDto(albumCreateDto);
-    const savedAlbum = await this.albumRepository.create(createdAlbum);
+
+    const savedAlbum = await this.albumRepository.create(
+      this.albumMapper.mapFromCreateDto(createAlbumDto),
+    );
     return this.albumMapper.mapToDto(savedAlbum);
   }
 
@@ -77,13 +73,10 @@ export class AlbumService extends BaseService {
       }
     }
 
-    const updatedAlbum = this.albumMapper.mapFromUpdateDto(
-      updateAlbumDto,
-      existingAlbum,
+    const updatedAlbum = await this.albumRepository.update(
+      this.albumMapper.mapFromUpdateDto(updateAlbumDto, existingAlbum),
     );
-    const savedAlbum = await this.albumRepository.update(updatedAlbum);
-
-    return this.albumMapper.mapToDto(savedAlbum);
+    return this.albumMapper.mapToDto(updatedAlbum);
   }
 
   async delete(id: string): Promise<void> {
@@ -91,11 +84,6 @@ export class AlbumService extends BaseService {
     if (!album) {
       this.notFoundException('Album');
     }
-
     await this.albumRepository.delete(id);
-
-    await this.trackRepository.nullifyAlbum(id);
-
-    await this.favoritesRepository.removeAlbum(id);
   }
 }

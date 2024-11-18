@@ -4,13 +4,13 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { IUserRepository } from '../repository/interfaces/user.repository.interface';
-import { User } from '../entity/user.entity';
 import { UserReqCreateDto } from '../dto/request/user-create.dto';
 import { UserReqUpdateDto } from '../dto/request/user-upd-pass.dto';
+import { UserResponseDto } from '../dto/response/user.response.dto';
+import { IMapper } from '../mappers/common/mapper-to-dto.interface';
 import { BaseService } from './common/base.service';
-import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
-import { UserResponseDto } from 'src/dto/response/user.response.dto';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -28,13 +28,8 @@ export class UserService extends BaseService {
   }
 
   async create(createUserDto: UserReqCreateDto): Promise<UserResponseDto> {
-    const createdUser = this.userMapper.mapFromCreateDto(createUserDto);
-
-    createdUser.version = 1;
-    createdUser.createdAt = Date.now();
-    createdUser.updatedAt = Date.now();
-
-    const savedUser = await this.userRepository.create(createdUser);
+    const userData = this.userMapper.mapFromCreateDto(createUserDto);
+    const savedUser = await this.userRepository.create(userData);
     return this.userMapper.mapToDto(savedUser);
   }
 
@@ -56,6 +51,7 @@ export class UserService extends BaseService {
     updatePasswordDto: UserReqUpdateDto,
   ): Promise<UserResponseDto> {
     const existingUser = await this.userRepository.findById(id);
+
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
@@ -68,15 +64,10 @@ export class UserService extends BaseService {
       throw new ForbiddenException('Old password is incorrect');
     }
 
-    const mappedUser = this.userMapper.mapFromUpdateDto(
-      updatePasswordDto,
-      existingUser,
+    const updatedUser = await this.userRepository.update(
+      this.userMapper.mapFromUpdateDto(updatePasswordDto, existingUser),
     );
 
-    mappedUser.version += 1;
-    mappedUser.updatedAt = Date.now();
-
-    const updatedUser = await this.userRepository.update(mappedUser);
     return this.userMapper.mapToDto(updatedUser);
   }
 

@@ -1,13 +1,14 @@
 import { Controller, Get, Post, Delete, Param, HttpCode } from '@nestjs/common';
 import { FavoritesService } from '../service/favorites.service';
 import { IdParamReqDto } from '../dto/request/id-param.dto';
+import { FavoritesResponseDto } from 'src/dto/response/favorites.response.dto';
 
 @Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @Get()
-  async getFavorites() {
+  async getFavorites(): Promise<FavoritesResponseDto> {
     return this.favoritesService.getFavorites();
   }
 

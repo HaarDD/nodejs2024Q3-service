@@ -1,58 +1,126 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma';
+import { Album, Artist, Favorites, Track } from '@prisma/client';
 import { IFavoritesRepository } from './interfaces/favorites.repository.interface';
-import { Favorites } from '../entity/favorites.entity';
 
 @Injectable()
 export class FavoritesRepository implements IFavoritesRepository {
-  private favorites: Favorites = {
-    artists: [],
-    albums: [],
-    tracks: [],
-  };
+  constructor(private prisma: PrismaService) {}
 
-  async getFavorites(): Promise<Favorites> {
-    return this.favorites;
+  private async ensureFavoritesExist(userId: string): Promise<void> {
+    const favorites = await this.prisma.favorites.findUnique({
+      where: { userId },
+    });
+
+    if (!favorites) {
+      await this.prisma.favorites.create({
+        data: {
+          userId,
+        },
+      });
+    }
   }
 
-  async addTrack(trackId: string): Promise<void> {
-    this.favorites.tracks.push(trackId);
+  async getFavorites(userId: string): Promise<
+    Favorites & {
+      artists: Artist[];
+      albums: Album[];
+      tracks: Track[];
+    }
+  > {
+    await this.ensureFavoritesExist(userId);
+    return this.prisma.favorites.findUnique({
+      where: { userId },
+      include: {
+        artists: true,
+        albums: true,
+        tracks: true,
+      },
+    });
   }
 
-  async addAlbum(albumId: string): Promise<void> {
-    this.favorites.albums.push(albumId);
+  async addTrack(userId: string, trackId: string): Promise<void> {
+    await this.ensureFavoritesExist(userId);
+    await this.prisma.favorites.update({
+      where: { userId },
+      data: {
+        tracks: { connect: { id: trackId } },
+      },
+    });
   }
 
-  async addArtist(artistId: string): Promise<void> {
-    this.favorites.artists.push(artistId);
+  async addAlbum(userId: string, albumId: string): Promise<void> {
+    await this.prisma.favorites.update({
+      where: { userId },
+      data: {
+        albums: { connect: { id: albumId } },
+      },
+    });
   }
 
-  async removeTrack(trackId: string): Promise<void> {
-    this.favorites.tracks = this.favorites.tracks.filter(
-      (id) => id !== trackId,
-    );
+  async addArtist(userId: string, artistId: string): Promise<void> {
+    await this.prisma.favorites.update({
+      where: { userId },
+      data: {
+        artists: { connect: { id: artistId } },
+      },
+    });
   }
 
-  async removeAlbum(albumId: string): Promise<void> {
-    this.favorites.albums = this.favorites.albums.filter(
-      (id) => id !== albumId,
-    );
+  async removeTrack(userId: string, trackId: string): Promise<void> {
+    await this.prisma.favorites.update({
+      where: { userId },
+      data: {
+        tracks: { disconnect: { id: trackId } },
+      },
+    });
   }
 
-  async removeArtist(artistId: string): Promise<void> {
-    this.favorites.artists = this.favorites.artists.filter(
-      (id) => id !== artistId,
-    );
+  async removeAlbum(userId: string, albumId: string): Promise<void> {
+    await this.prisma.favorites.update({
+      where: { userId },
+      data: {
+        albums: { disconnect: { id: albumId } },
+      },
+    });
   }
 
-  async isTrackFavorite(trackId: string): Promise<boolean> {
-    return this.favorites.tracks.includes(trackId);
+  async removeArtist(userId: string, artistId: string): Promise<void> {
+    await this.prisma.favorites.update({
+      where: { userId },
+      data: {
+        artists: { disconnect: { id: artistId } },
+      },
+    });
   }
 
-  async isAlbumFavorite(albumId: string): Promise<boolean> {
-    return this.favorites.albums.includes(albumId);
+  async isTrackFavorite(userId: string, trackId: string): Promise<boolean> {
+    const favorite = await this.prisma.favorites.findFirst({
+      where: {
+        userId,
+        tracks: { some: { id: trackId } },
+      },
+    });
+    return !!favorite;
   }
 
-  async isArtistFavorite(artistId: string): Promise<boolean> {
-    return this.favorites.artists.includes(artistId);
+  async isAlbumFavorite(userId: string, albumId: string): Promise<boolean> {
+    const favorite = await this.prisma.favorites.findFirst({
+      where: {
+        userId,
+        albums: { some: { id: albumId } },
+      },
+    });
+    return !!favorite;
+  }
+
+  async isArtistFavorite(userId: string, artistId: string): Promise<boolean> {
+    const favorite = await this.prisma.favorites.findFirst({
+      where: {
+        userId,
+        artists: { some: { id: artistId } },
+      },
+    });
+    return !!favorite;
   }
 }

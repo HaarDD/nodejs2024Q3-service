@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Track } from '../entity/track.entity';
+import { Track } from '@prisma/client';
 import { TrackResponseDto } from '../dto/response/track.response.dto';
 import { IMapper } from './common/mapper-to-dto.interface';
-import { TrackReqCreateDto } from 'src/dto/request/track-create.dto';
-import { TrackReqUpdateDto } from 'src/dto/request/track-update.dto';
+import { TrackReqCreateDto } from '../dto/request/track-create.dto';
+import { TrackReqUpdateDto } from '../dto/request/track-update.dto';
 
 @Injectable()
 export class TrackMapper
   implements
     IMapper<Track, TrackReqCreateDto, TrackReqUpdateDto, TrackResponseDto>
 {
-  mapFromCreateDto(createDto: TrackReqCreateDto): Track {
-    const track = new Track();
-    track.name = createDto.name;
-    track.artistId = createDto.artistId || null;
-    track.albumId = createDto.albumId || null;
-    track.duration = createDto.duration;
-    return track;
+  mapFromCreateDto(createDto: TrackReqCreateDto): Omit<Track, 'id'> {
+    return {
+      name: createDto.name,
+      artistId: createDto.artistId || null,
+      albumId: createDto.albumId || null,
+      duration: createDto.duration,
+    };
   }
 
   mapFromUpdateDto(updateDto: TrackReqUpdateDto, existingTrack: Track): Track {

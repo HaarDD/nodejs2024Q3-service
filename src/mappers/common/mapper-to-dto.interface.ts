@@ -6,7 +6,6 @@ export interface IMapper<
 > {
   mapToDto(entity: Entity): ResponseDto | Promise<ResponseDto>;
   mapToDtos(entities: Entity[]): ResponseDto[] | Promise<ResponseDto[]>;
-
-  mapFromCreateDto(createDto: RequestCreateDto): Entity;
+  mapFromCreateDto(createDto: RequestCreateDto): Omit<Entity, 'id'>;
   mapFromUpdateDto(updateDto: RequestUpdateDto, existingEntity: Entity): Entity;
 }

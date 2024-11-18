@@ -1,43 +1,58 @@
-import { User } from '../entity/user.entity';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma';
+import { User } from '@prisma/client';
 import { IUserRepository } from './interfaces/user.repository.interface';
-import { v4 as uuidv4 } from 'uuid';
 
+@Injectable()
 export class UserRepository implements IUserRepository {
-  private users: User[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  async create(user: User): Promise<User> {
-    user.id = uuidv4();
-    user.version = 1;
-    user.createdAt = Date.now();
-    user.updatedAt = Date.now();
-    this.users.push(user);
-    return user;
+  findFirst(): Promise<User | null> {
+    return this.prisma.user.findFirst();
+  }
+
+  async create(
+    userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<User> {
+    const now = new Date();
+    return this.prisma.user.create({
+      data: {
+        ...userData,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
   }
 
   async findAll(): Promise<User[]> {
-    return this.users;
+    return this.prisma.user.findMany();
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.users.find((users) => users.id === id) || null;
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
-  async update(updatedUser: User): Promise<User> {
-    const index = this.users.findIndex((user) => user.id === updatedUser.id);
-    if (index === -1) {
-      throw new Error('User not found');
-    }
+  async update(user: User): Promise<User> {
+    const now = new Date();
 
-    this.users[index] = updatedUser;
-    return updatedUser;
+    const userUpdated = await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        ...user,
+        version: { increment: 1 },
+        updatedAt: now,
+      },
+    });
+
+    return userUpdated;
   }
 
   async delete(id: string): Promise<void> {
-    this.users = this.users.filter((user) => user.id !== id);
+    await this.prisma.user.delete({ where: { id } });
   }
 
   async validatePassword(id: string, password: string): Promise<boolean> {
-    const user = this.users.find((user) => user.id === id);
-    return user ? user.password === password : false;
+    const user = await this.findById(id);
+    return user?.password === password;
   }
 }
