@@ -67,7 +67,6 @@ export class LoggingService {
 
     this.currentSize += Buffer.byteLength(logEntry);
 
-    // Log rotation
     if (this.currentSize >= this.maxSize) {
       this.logStream.end();
       this.setupLogFile();
@@ -75,7 +74,7 @@ export class LoggingService {
     }
 
     this.logStream.write(logEntry);
-    console.log(logEntry); // Also write to stdout
+    console.log(logEntry);
   }
 
   debug(message: string, meta?: any) {
