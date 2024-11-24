@@ -21,16 +21,23 @@
   "watchOptions": {
     "watchFile": "fixedPollingInterval",
     "watchDirectory": "fixedPollingInterval",
-    "excludeDirectories": ["node_modules", "dist"]
+    "excludeDirectories": [
+      "**/node_modules",
+      "**/dist",
+      "**/coverage",
+      "**/.vscode-chat-code-block",
+      "**/.git"
+    ],
+    "fallbackPolling": "dynamicPriority"
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*"
-  ],
   "exclude": [
     "node_modules",
     "dist",
+    "coverage",
+    ".vscode-chat-code-block",
+    ".git",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "**/__tests__/**"
   ]
 }
