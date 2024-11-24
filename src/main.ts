@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './common/module/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { loadApiSpec } from './utils/swagger.util';
+import { loadApiSpec } from './common/swagger/swagger.util';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
