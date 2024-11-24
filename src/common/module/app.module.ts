@@ -8,8 +8,11 @@ import { FavoritesModule } from '../../favorites/favorites.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../../authentication/auth.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { JwtAuthGuard } from '../../authentication/jwt-auth.guard';
+import { LoggingInterceptor } from "../logging/logging.interceptor";
+import { HttpExceptionFilter } from "../logging/http-exceptions.filter";
+import { LoggingService } from "../logging/logging.service";
 
 @Module({
   imports: [
@@ -27,6 +30,15 @@ import { JwtAuthGuard } from '../../authentication/jwt-auth.guard';
     FavoritesModule,
   ],
   providers: [
+    LoggingService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
