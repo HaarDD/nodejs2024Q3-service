@@ -32,6 +32,10 @@ export class UserRepository implements IUserRepository {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  async findByLogin(login: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { login } });
+  }
+
   async update(user: User): Promise<User> {
     const now = new Date();
 

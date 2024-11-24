@@ -9,7 +9,8 @@ import { RepositoryModule } from './repository.module';
 
 @Module({
   imports: [
-    PassportModule,
+    ConfigModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

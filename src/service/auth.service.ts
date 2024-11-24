@@ -1,6 +1,7 @@
 import {
   Injectable,
   Inject,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   UnauthorizedException,
   ForbiddenException,
 } from '@nestjs/common';
@@ -11,6 +12,10 @@ import { IUserRepository } from '../repository/interfaces/user.repository.interf
 import { UserReqCreateDto } from '../dto/request/user-create.dto';
 import { LoginDto } from '../dto/request/login.dto';
 import { RefreshTokenDto } from '../dto/request/refresh-token.dto';
+import { IMapper } from 'src/mappers/common/mapper-to-dto.interface';
+import { User } from '@prisma/client';
+import { UserReqUpdateDto } from 'src/dto/request/user-upd-pass.dto';
+import { UserResponseDto } from 'src/dto/response/user.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +24,13 @@ export class AuthService {
     private readonly userRepository: IUserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject('UserMapper')
+    private readonly userMapper: IMapper<
+      User,
+      UserReqCreateDto,
+      UserReqUpdateDto,
+      UserResponseDto
+    >,
   ) {}
 
   async signup(createUserDto: UserReqCreateDto) {
@@ -27,13 +39,11 @@ export class AuthService {
       Number(this.configService.get<string>('CRYPT_SALT')),
     );
 
-    return this.userRepository.create({
-      login: createUserDto.login,
-      password: hashedPassword,
-      version: 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    createUserDto.password = hashedPassword;
+
+    const userData = this.userMapper.mapFromCreateDto(createUserDto);
+    const savedUser = await this.userRepository.create(userData);
+    return this.userMapper.mapToDto(savedUser);
   }
 
   async validateUser(login: string, password: string) {
@@ -66,6 +76,7 @@ export class AuthService {
       });
 
       return this.generateTokens(decoded.sub, decoded.login);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       throw new ForbiddenException('Invalid refresh token');
     }

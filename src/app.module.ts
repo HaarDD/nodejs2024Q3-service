@@ -7,12 +7,17 @@ import { RepositoryModule } from './modules/repository.module';
 import { FavoritesModule } from './modules/favorites.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './modules/prisma.module';
+import { AuthModule } from './modules/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
+    AuthModule,
     PrismaModule,
     RepositoryModule,
     UserModule,
@@ -20,6 +25,12 @@ import { PrismaModule } from './modules/prisma.module';
     AlbumModule,
     TrackModule,
     FavoritesModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}
