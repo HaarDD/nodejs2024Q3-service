@@ -23,6 +23,8 @@ export class UserMapper
     return {
       ...existingUser,
       password: updateDto.newPassword,
+      version: existingUser.version + 1,
+      updatedAt: new Date(),
     };
   }
 
