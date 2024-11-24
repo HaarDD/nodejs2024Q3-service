@@ -13,7 +13,6 @@ import { UserReqCreateDto } from '../dto/request/user-create.dto';
 import { UserReqUpdateDto } from '../dto/request/user-upd-pass.dto';
 import { IdParamReqDto } from 'src/dto/request/id-param.dto';
 import { UserResponseDto } from 'src/dto/response/user.response.dto';
-import { Public } from 'src/decorators/public.decorator';
 
 @Controller('user')
 export class UserController {
@@ -30,7 +29,6 @@ export class UserController {
   }
 
   @Post()
-  @Public()
   @HttpCode(201)
   async create(
     @Body() createUserDto: UserReqCreateDto,

@@ -11,6 +11,7 @@ import { UserReqUpdateDto } from '../dto/request/user-upd-pass.dto';
 import { UserResponseDto } from '../dto/response/user.response.dto';
 import { IMapper } from '../mappers/common/mapper-to-dto.interface';
 import { BaseService } from './common/base.service';
+import { PasswordService } from './password.service';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -23,12 +24,19 @@ export class UserService extends BaseService {
       UserReqUpdateDto,
       UserResponseDto
     >,
+    private readonly passwordService: PasswordService,
   ) {
     super();
   }
 
   async create(createUserDto: UserReqCreateDto): Promise<UserResponseDto> {
-    const userData = this.userMapper.mapFromCreateDto(createUserDto);
+    const hashedPassword = await this.passwordService.hashPassword(
+      createUserDto.password,
+    );
+    const userData = this.userMapper.mapFromCreateDto({
+      ...createUserDto,
+      password: hashedPassword,
+    });
     const savedUser = await this.userRepository.create(userData);
     return this.userMapper.mapToDto(savedUser);
   }
@@ -51,23 +59,28 @@ export class UserService extends BaseService {
     updatePasswordDto: UserReqUpdateDto,
   ): Promise<UserResponseDto> {
     const existingUser = await this.userRepository.findById(id);
-
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
 
-    const isValidPassword = await this.userRepository.validatePassword(
-      id,
+    const isValidPassword = await this.passwordService.comparePasswords(
       updatePasswordDto.oldPassword,
+      existingUser.password,
     );
+
     if (!isValidPassword) {
       throw new ForbiddenException('Old password is incorrect');
     }
 
-    const updatedUser = await this.userRepository.update(
-      this.userMapper.mapFromUpdateDto(updatePasswordDto, existingUser),
+    const hashedNewPassword = await this.passwordService.hashPassword(
+      updatePasswordDto.newPassword,
+    );
+    const userToUpdate = this.userMapper.mapFromUpdateDto(
+      { ...updatePasswordDto, newPassword: hashedNewPassword },
+      existingUser,
     );
 
+    const updatedUser = await this.userRepository.update(userToUpdate);
     return this.userMapper.mapToDto(updatedUser);
   }
 

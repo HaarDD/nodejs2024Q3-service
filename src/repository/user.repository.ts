@@ -38,25 +38,17 @@ export class UserRepository implements IUserRepository {
 
   async update(user: User): Promise<User> {
     const now = new Date();
-
-    const userUpdated = await this.prisma.user.update({
+    return this.prisma.user.update({
       where: { id: user.id },
       data: {
-        ...user,
+        password: user.password,
         version: { increment: 1 },
         updatedAt: now,
       },
     });
-
-    return userUpdated;
   }
 
   async delete(id: string): Promise<void> {
     await this.prisma.user.delete({ where: { id } });
-  }
-
-  async validatePassword(id: string, password: string): Promise<boolean> {
-    const user = await this.findById(id);
-    return user?.password === password;
   }
 }

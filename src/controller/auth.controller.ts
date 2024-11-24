@@ -13,8 +13,7 @@ export class AuthController {
   @Post('signup')
   @HttpCode(201)
   async signup(@Body() createUserDto: UserReqCreateDto) {
-    await this.authService.signup(createUserDto);
-    return { message: 'User created successfully' };
+    return this.authService.signup(createUserDto);
   }
 
   @Public()

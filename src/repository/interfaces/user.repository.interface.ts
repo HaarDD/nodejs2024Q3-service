@@ -8,5 +8,4 @@ export interface IUserRepository {
   findByLogin(id: string): Promise<User | null>;
   update(user: User): Promise<User>;
   delete(id: string): Promise<void>;
-  validatePassword(id: string, password: string): Promise<boolean>;
 }
