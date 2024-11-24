@@ -1,8 +1,14 @@
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  UnauthorizedException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserReqCreateDto } from '../user/dto/user-create.dto';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Public } from '../common/decorators/public.decorator';
 
 @Controller('auth')
@@ -26,7 +32,13 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(200)
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+  async refresh(
+    @Body(new ValidationPipe({ validateCustomDecorators: false }))
+    refreshTokenDto: any,
+  ) {
+    if (!refreshTokenDto?.refreshToken) {
+      throw new UnauthorizedException('No refresh token provided');
+    }
     return this.authService.refresh(refreshTokenDto);
   }
 }

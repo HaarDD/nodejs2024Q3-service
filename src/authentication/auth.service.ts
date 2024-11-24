@@ -75,7 +75,7 @@ export class AuthService {
         secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
       });
 
-      return this.generateTokens(decoded.sub, decoded.login);
+      return this.generateTokens(decoded.userId, decoded.login);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       throw new ForbiddenException('Invalid refresh token');
@@ -85,14 +85,14 @@ export class AuthService {
   private async generateTokens(userId: string, login: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, login },
+        { userId, login },
         {
           secret: this.configService.get<string>('JWT_SECRET_KEY'),
           expiresIn: this.configService.get<string>('TOKEN_EXPIRE_TIME'),
         },
       ),
       this.jwtService.signAsync(
-        { sub: userId, login },
+        { userId, login },
         {
           secret: this.configService.get<string>('JWT_SECRET_REFRESH_KEY'),
           expiresIn: this.configService.get<string>(
