@@ -35,102 +35,80 @@ export class FavoritesService extends BaseService {
     super();
   }
 
-  // TODO: mocked until next task
-  private async ensureMockedUser(): Promise<User> {
-    if (!this.mockedUser) {
-      const existingUser = await this.userRepository.findFirst();
-      if (existingUser) {
-        this.mockedUser = existingUser;
-      } else {
-        this.mockedUser = await this.userRepository.create({
-          login: 'MOCK_USER',
-          password: 'MOCK_PASSWORD',
-          version: 1,
-        });
-      }
-    }
-    return this.mockedUser;
-  }
-
-  async getFavorites(): Promise<FavoritesResponseDto> {
-    const user = await this.ensureMockedUser();
-
-    const favorites = await this.favoritesRepository.getFavorites(user.id);
+  async getFavorites(userId: string): Promise<FavoritesResponseDto> {
+    const favorites = await this.favoritesRepository.getFavorites(userId);
     return this.favoritesMapper.mapToDto(favorites);
   }
 
-  async addTrackToFavorites(trackId: string): Promise<void> {
+  async addTrackToFavorites(userId: string, trackId: string): Promise<void> {
     const track = await this.trackRepository.findById(trackId);
     if (!track) {
       this.unprocessableEntityException('Track');
     }
 
-    const user = await this.ensureMockedUser();
-
-    await this.favoritesRepository.addTrack(user.id, trackId);
+    await this.favoritesRepository.addTrack(userId, trackId);
   }
 
-  async addAlbumToFavorites(albumId: string): Promise<void> {
+  async addAlbumToFavorites(userId: string, albumId: string): Promise<void> {
     const album = await this.albumRepository.findById(albumId);
     if (!album) {
       this.unprocessableEntityException('Album');
     }
 
-    const user = await this.ensureMockedUser();
-
-    await this.favoritesRepository.addAlbum(user.id, albumId);
+    await this.favoritesRepository.addAlbum(userId, albumId);
   }
 
-  async addArtistToFavorites(artistId: string): Promise<void> {
+  async addArtistToFavorites(userId: string, artistId: string): Promise<void> {
     const artist = await this.artistRepository.findById(artistId);
     if (!artist) {
       this.unprocessableEntityException('Artist');
     }
 
-    const user = await this.ensureMockedUser();
-
-    await this.favoritesRepository.addArtist(user.id, artistId);
+    await this.favoritesRepository.addArtist(userId, artistId);
   }
 
-  async removeTrackFromFavorites(trackId: string): Promise<void> {
-    const user = await this.ensureMockedUser();
-
+  async removeTrackFromFavorites(
+    userId: string,
+    trackId: string,
+  ): Promise<void> {
     const isFavorite = await this.favoritesRepository.isTrackFavorite(
-      user.id,
+      userId,
       trackId,
     );
     if (!isFavorite) {
       this.notFoundException('Track');
     }
 
-    await this.favoritesRepository.removeTrack(user.id, trackId);
+    await this.favoritesRepository.removeTrack(userId, trackId);
   }
 
-  async removeAlbumFromFavorites(albumId: string): Promise<void> {
-    const user = await this.ensureMockedUser();
-
+  async removeAlbumFromFavorites(
+    userId: string,
+    albumId: string,
+  ): Promise<void> {
     const isFavorite = await this.favoritesRepository.isAlbumFavorite(
-      user.id,
+      userId,
       albumId,
     );
     if (!isFavorite) {
       this.notFoundException('Album');
     }
 
-    await this.favoritesRepository.removeAlbum(user.id, albumId);
+    await this.favoritesRepository.removeAlbum(userId, albumId);
   }
 
-  async removeArtistFromFavorites(artistId: string): Promise<void> {
-    const user = await this.ensureMockedUser();
-
+  async removeArtistFromFavorites(
+    userId: string,
+    artistId: string,
+  ): Promise<void> {
     const isFavorite = await this.favoritesRepository.isArtistFavorite(
-      user.id,
+      userId,
       artistId,
     );
     if (!isFavorite) {
       this.notFoundException('Artist');
     }
 
-    await this.favoritesRepository.removeArtist(user.id, artistId);
+    await this.favoritesRepository.removeArtist(userId, artistId);
   }
 }
