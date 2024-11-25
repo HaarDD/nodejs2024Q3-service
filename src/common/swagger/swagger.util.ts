@@ -11,9 +11,11 @@ export function createSwaggerConfig() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
+        name: 'Authorization',
         in: 'header',
+        description: 'Enter your JWT token',
       },
-      'JWT',
+      'access-token',
     )
     .build();
 }

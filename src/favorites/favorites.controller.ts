@@ -20,7 +20,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Favorites')
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
 @Controller('favs')
 @UseGuards(JwtAuthGuard)
 export class FavoritesController {

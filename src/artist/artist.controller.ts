@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Artists')
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
 @Controller('artist')
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}

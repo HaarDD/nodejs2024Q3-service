@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Tracks')
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
