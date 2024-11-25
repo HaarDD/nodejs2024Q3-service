@@ -19,10 +19,25 @@
     "noFallthroughCasesInSwitch": false
   },
   "watchOptions": {
-    "watchFile": "dynamicPriorityPolling",
-    "watchDirectory": "dynamicPriorityPolling",
-    "fallbackPolling": "dynamicPriority",
-    "synchronousWatchDirectory": true,
-    "excludeDirectories": ["**/node_modules", "dist"]
-  }
+    "watchFile": "fixedPollingInterval",
+    "watchDirectory": "fixedPollingInterval",
+    "excludeDirectories": [
+      "**/node_modules",
+      "**/dist",
+      "**/coverage",
+      "**/.vscode-chat-code-block",
+      "**/.git"
+    ],
+    "fallbackPolling": "dynamicPriority"
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    ".vscode-chat-code-block",
+    ".git",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/__tests__/**"
+  ]
 }

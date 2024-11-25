@@ -39,3 +39,7 @@ lerna-debug.log*
 
 # vscode settings
 .vscode
+
+# Docs
+doc
+api.yaml

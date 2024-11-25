@@ -1,9 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './common/module/app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { loadApiSpec } from './utils/swagger.util';
 import { ConfigService } from '@nestjs/config';
+import { setupSwagger } from './common/swagger/swagger.util';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,29 +15,10 @@ async function bootstrap() {
     }),
   );
 
-  const apiSpec = loadApiSpec();
-
-  const config = new DocumentBuilder()
-    .setTitle(apiSpec.info.title)
-    .setDescription(apiSpec.info.description)
-    .setVersion(apiSpec.info.version)
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-
-  Object.assign(document, {
-    components: apiSpec.components,
-    paths: apiSpec.paths,
-  });
-
-  SwaggerModule.setup('doc', app, document, {
-    swaggerOptions: {
-      tagsSorter: 'alpha',
-      operationsSorter: 'alpha',
-    },
-  });
+  setupSwagger(app);
 
   const port = configService.get<number>('PORT', 4000);
+
   await app.listen(port);
 }
 bootstrap();

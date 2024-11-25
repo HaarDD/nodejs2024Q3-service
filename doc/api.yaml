@@ -8,19 +8,48 @@ servers:
   - url: /api
 
 tags:
-  - name: "1. Users"
+  - name: "1. Auth"
+    description: Authentication operations
+  - name: "2. Users"
     description: Operations about users
-  - name: "2. Tracks"
+  - name: "3. Tracks"
     description: Operations about tracks
-  - name: "3. Artists"
+  - name: "4. Artists"
     description: Operations about artists
-  - name: "4. Albums"
+  - name: "5. Albums"
     description: Operations about albums
-  - name: "5. Favorites"
+  - name: "6. Favorites"
     description: Operations about favorites
 
 components:
   schemas:
+    LoginDto:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+      required:
+        - login
+        - password
+    RefreshTokenDto:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+      required:
+        - refreshToken
+    UserReqCreateDto:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+      required:
+        - login
+        - password
     User:
       type: object
       properties:
@@ -119,88 +148,80 @@ components:
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
-#  securitySchemes:
-#    bearerAuth:
-#      type: http
-#      scheme: bearer
-#      bearerFormat: JWT
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
-#security:
-#  - bearerAuth: []
+security:
+  - bearerAuth: []
 
 paths:
-#  /login:
-#    post:
-#      tags:
-#        - Login
-#      security: []
-#      summary: Login
-#      description: Logins a user and returns a JWT-token
-#      requestBody:
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              type: object
-#              title: example
-#              properties:
-#                login:
-#                  type: string
-#                  description: Username
-#                password:
-#                  type: string
-#                  description: Password
-#              required:
-#                - user
-#                - login
-#      responses:
-#        200:
-#          description: Successful login.
-#          content:
-#            application/json:
-#              schema:
-#                type: object
-#                properties:
-#                  token:
-#                    type: string
-#                description: JWT Token
-#        403:
-#          description: Incorrect login or password
-#  /signup:
-#    post:
-#      tags:
-#        - Signup
-#      security: [ ]
-#      summary: Signup
-#      description: Signup a user
-#      requestBody:
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              type: object
-#              title: example
-#              properties:
-#                login:
-#                  type: string
-#                  minLength: 3
-#                  maxLength: 255
-#                  description: Username
-#                password:
-#                  type: string
-#                  format: password
-#                  pattern: ^[a-zA-Z0-9]{3,30}
-#                  description: Password
-#              required:
-#                - login
-#                - password
-#      responses:
-#        204:
-#          description: Successful signup
-#        400:
-#          description: Bad request
-#        409:
-#          description: Conflict. Login already exists
+  /auth/login:
+    post:
+      tags:
+        - "1. Auth"
+      security: []
+      summary: Login
+      description: Logins a user and returns a JWT-token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        200:
+          description: Successful login.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                description: JWT Token
+        403:
+          description: Incorrect login or password
+  /auth/signup:
+    post:
+      tags:
+        - "1. Auth"
+      security: []
+      summary: Signup
+      description: Signup a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        204:
+          description: Successful signup
+        400:
+          description: Bad request
+        409:
+          description: Conflict. Login already exists
+  /auth/refresh:
+    post:
+      tags:
+        - "1. Auth"
+      security: []
+      summary: Refresh
+      description: Refreshes a JWT-token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenDto'
+      responses:
+        200:
+          description: Token refreshed successfully
+        401:
+          description: Invalid refresh token
   /user:
     get:
       tags:
@@ -228,18 +249,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              title: example
-              properties:
-                login:
-                  type: string
-                  description: The user's login
-                password:
-                  type: string
-                  description: The user's password
-              required:
-                - login
-                - password
+              $ref: '#/components/schemas/UserReqCreateDto'
       responses:
         201:
           description: The user has been created.
