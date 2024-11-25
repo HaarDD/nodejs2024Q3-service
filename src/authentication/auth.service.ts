@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  UnauthorizedException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
@@ -76,9 +70,8 @@ export class AuthService {
       });
 
       return this.generateTokens(decoded.userId, decoded.login);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      throw new ForbiddenException('Invalid refresh token');
+    } catch {
+      throw new ForbiddenException('Invalid refresh token ');
     }
   }
 
