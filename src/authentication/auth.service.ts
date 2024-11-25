@@ -1,7 +1,7 @@
 import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { IUserRepository } from '../user/user.repository.interface';
 import { UserReqCreateDto } from '../user/dto/user-create.dto';
 import { LoginDto } from './dto/login.dto';
@@ -28,7 +28,7 @@ export class AuthService {
   ) {}
 
   async signup(createUserDto: UserReqCreateDto) {
-    const hashedPassword = await bcrypt.hash(
+    const hashedPassword = await hash(
       createUserDto.password,
       Number(this.configService.get<string>('CRYPT_SALT')),
     );
@@ -46,7 +46,7 @@ export class AuthService {
       return null;
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await compare(password, user.password);
     if (!isPasswordValid) {
       return null;
     }
